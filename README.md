@@ -2,7 +2,7 @@
 
 Simple neural network implementation for MNIST digit classification, built from scratch with NumPy.
 
-*Based on Michael Nielsen's "[Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)", adjusted slightly for my [Youtube video](https://youtu.be/WLmY9icEOQk).*
+*Based on Michael Nielsen's "[Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)".*
 
 ## Quick Start
 
