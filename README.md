@@ -23,7 +23,7 @@ Aplikasi web untuk menampilkan stream CCTV dengan deteksi objek menggunakan YOLO
 
 ### Tampilan dengan 2 Objek Terdeteksi
 ![Tampilan 2 Objek](docs/images/img%203.jpg)
-*Deteksi 2 person dengan confidence level 79.09% dan 45.58%* 
+*Deteksi 2 person dengan confidence level 79.09% dan 45.58%*
 
 ## Cara Penggunaan
 
@@ -32,18 +32,17 @@ Aplikasi web untuk menampilkan stream CCTV dengan deteksi objek menggunakan YOLO
 git clone https://github.com/temorubun/Stream-CCTV-Yolo-Total-Objek-Terdeteksi.git
 ```
 
-2. Jalankan aplikasi menggunakan Docker:
+2. Install dependencies yang diperlukan:
 ```bash
-docker pull python:3.9
-docker images
-docker run -it --network host --name app_rtsp_cctv_yolo -v ${PWD}:/app -w /app python:3.9 bash
 pip install -r requirements.txt
-apt-get update
-apt-get install -y libgl1
+```
+
+3. Jalankan aplikasi:
+```bash
 python app.py
 ```
 
-3. Buka browser dan akses:
+4. Buka browser dan akses:
 ```
 http://localhost:5000
 ```
