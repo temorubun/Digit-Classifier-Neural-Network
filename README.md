@@ -68,6 +68,90 @@ Jalankan langkah-langkah berikut untuk menjalankan aplikasi di dalam container D
 
 ## Cara Kerja Neural Network di Project Ini
 
+### **Alur Kerja: Input → Proses → Output**
+
+#### 1. **Input**
+- **Sumber data:**
+  - Saat training: gambar digit dari dataset MNIST (format 28x28 piksel, grayscale).
+  - Saat prediksi: gambar digit yang Anda gambar di aplikasi web (kanvas Streamlit).
+- **Representasi data:**
+  - Setiap gambar diubah menjadi vektor kolom berukuran 784x1 (karena 28x28 = 784 piksel).
+  - Nilai piksel dinormalisasi ke rentang 0-1 (0 = hitam, 1 = putih).
+
+**Kode (dari `mnist_loader.py` dan `app.py`):**
+```python
+# Untuk training (mnist_loader.py)
+training_inputs = [np.reshape(x, (784, 1)) for x in tr_d[0]]
+
+# Untuk prediksi di web app (app.py)
+processed = crop_and_center(gray)  # hasil 28x28
+input_vector = processed.reshape(784, 1)  # jadi 784x1
+```
+
+#### 2. **Proses (Feedforward di Neural Network)**
+- **Langkah-langkah utama:**
+  1. **Input vektor** (784x1) masuk ke layer pertama (input layer).
+  2. **Setiap layer** (kecuali input) melakukan:
+     - Mengalikan input dengan bobot, menambahkan bias:
+       \[
+       \mathbf{z} = \mathbf{W} \mathbf{a} + \mathbf{b}
+       \]
+     - Menerapkan fungsi aktivasi sigmoid ke setiap elemen z:
+       \[
+       \mathbf{a}_{\text{baru}} = \sigma(\mathbf{z}) = \frac{1}{1 + e^{-\mathbf{z}}}
+       \]
+     - Output dari layer ini menjadi input untuk layer berikutnya.
+  3. Proses diulang hingga layer output.
+
+**Kode (dari `network.py`):**
+```python
+def feedforward(self, a):
+    for b, w in zip(self.biases, self.weights):
+        z = np.dot(w, a) + b  # z = W*a + b
+        a = sigmoid(z)        # a = sigmoid(z)
+    return a
+
+def sigmoid(z):
+    return 1.0 / (1.0 + np.exp(-z))
+```
+
+**Contoh kode sederhana:**
+```python
+import numpy as np
+
+# Bobot dan bias acak untuk 1 layer
+W = np.array([[0.2, -0.5],
+              [1.5,  0.3],
+              [-1.2, 0.7]])
+b = np.array([[0.1], [0.2], [-0.3]])
+a_prev = np.array([[0.6], [0.9]])  # input dari layer sebelumnya
+
+z = np.dot(W, a_prev) + b  # z = W*a + b
+sigmoid = lambda x: 1 / (1 + np.exp(-x))
+a = sigmoid(z)
+print(a)
+```
+
+#### 3. **Output**
+- **Bentuk output:**
+  - Vektor berukuran 10x1, setiap elemen mewakili probabilitas prediksi untuk digit 0-9.
+  - Nilai tertinggi menunjukkan digit yang diprediksi jaringan.
+- **Interpretasi:**
+  - Misal output: `[0.01, 0.02, 0.95, 0.01, ...]` → prediksi = 2 (karena 0.95 paling besar di indeks ke-2).
+
+**Kode (dari `app.py`):**
+```python
+output = net.feedforward(input_vector)
+prediction = int(np.argmax(output))
+```
+
+**Rumus:**
+\[
+prediksi = \text{argmax}(\mathbf{a}_{\text{output}})
+\]
+
+---
+
 ### 1. **Arsitektur Jaringan dan Koneksi Antar Neuron**
 Jaringan terdiri dari beberapa layer:
 - **Input layer:** 784 neuron (untuk 28x28 piksel gambar)
