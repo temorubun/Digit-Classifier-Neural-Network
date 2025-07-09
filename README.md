@@ -68,57 +68,108 @@ Jalankan langkah-langkah berikut untuk menjalankan aplikasi di dalam container D
 
 ## Cara Kerja Neural Network di Project Ini
 
-1. **Arsitektur Jaringan**
-   - Jaringan terdiri dari 4 layer: input (784 neuron untuk 28x28 piksel), dua hidden layer (masing-masing 16 neuron), dan output (10 neuron untuk digit 0-9).
-   - **Setiap neuron dihubungkan ke neuron di layer berikutnya dengan bobot (weight) dan bias yang diinisialisasi secara acak.**
-     
-     **Penjelasan detail:**
-     - Setiap koneksi antar neuron diwakili oleh sebuah bobot (weight) \( w_{jk} \), di mana \( w_{jk} \) adalah bobot dari neuron ke-\( k \) di layer sebelumnya ke neuron ke-\( j \) di layer saat ini.
-     - Setiap neuron (kecuali layer input) juga memiliki bias \( b_j \) yang diinisialisasi secara acak.
-     - Pada inisialisasi, semua bobot dan bias diambil dari distribusi normal (Gaussian) dengan rata-rata 0 dan standar deviasi 1:
-       
-       \[
-       w_{jk} \sim \mathcal{N}(0, 1) \qquad b_j \sim \mathcal{N}(0, 1)
-       \]
-     - Untuk setiap layer \( l \) (selain input), vektor bias \( \mathbf{b}^l \) dan matriks bobot \( \mathbf{W}^l \) diinisialisasi dengan ukuran sesuai jumlah neuron di layer tersebut dan layer sebelumnya.
-     
-     **Proses Feedforward:**
-     - Input dari layer sebelumnya (atau input gambar) adalah vektor \( \mathbf{a}^{l-1} \).
-     - Setiap neuron di layer \( l \) menghitung nilai input total (z) sebagai:
-       
-       \[
-       z^l_j = \sum_k w^l_{jk} a^{l-1}_k + b^l_j
-       \]
-       atau dalam bentuk vektor:
-       \[
-       \mathbf{z}^l = \mathbf{W}^l \mathbf{a}^{l-1} + \mathbf{b}^l
-       \]
-     - Nilai \( z^l_j \) kemudian dilewatkan ke fungsi aktivasi sigmoid:
-       \[
-       a^l_j = \sigma(z^l_j) = \frac{1}{1 + e^{-z^l_j}}
-       \]
-     - Proses ini diulang untuk setiap layer hingga output.
-     
-     **Implementasi di kode:**
-     - Inisialisasi bobot dan bias: lihat konstruktor `__init__` di `network.py`.
-     - Proses feedforward: lihat fungsi `feedforward` di `network.py`.
+### 1. **Arsitektur Jaringan dan Koneksi Antar Neuron**
+Jaringan terdiri dari beberapa layer:
+- **Input layer:** 784 neuron (untuk 28x28 piksel gambar)
+- **Hidden layer:** 2 layer, masing-masing 16 neuron
+- **Output layer:** 10 neuron (untuk digit 0-9)
 
-2. **Training (Pelatihan)**
-   - Data MNIST (gambar digit tulisan tangan) dimuat dan diproses menjadi vektor.
-   - Proses training menggunakan algoritma backpropagation dan stochastic gradient descent:
-     - Data dibagi menjadi mini-batch.
-     - Untuk setiap mini-batch, jaringan melakukan feedforward (menghitung output dari input) dan backpropagation (menghitung error dan memperbarui bobot/bias).
-     - Proses ini diulang selama beberapa epoch (putaran) untuk meminimalkan error.
-   - Setelah training selesai, model disimpan ke file `trained_network.pkl`.
+#### **Bobot (Weight) dan Bias**
+Setiap neuron di layer (selain input) menerima input dari semua neuron di layer sebelumnya. Setiap koneksi memiliki **bobot** \( w_{jk} \), dan setiap neuron memiliki **bias** \( b_j \).
 
-3. **Prediksi (Inference)**
-   - Model yang sudah dilatih dapat memprediksi digit dari gambar baru.
-   - Pada aplikasi web, pengguna menggambar digit di kanvas.
-   - Gambar diproses (crop, resize, normalisasi) agar sesuai format MNIST.
-   - Gambar diubah menjadi vektor dan dimasukkan ke jaringan.
-   - Output jaringan adalah vektor probabilitas untuk setiap digit (0-9); digit dengan probabilitas tertinggi dipilih sebagai prediksi.
+- **Bobot**: Mengatur seberapa besar pengaruh input dari neuron sebelumnya.
+- **Bias**: Nilai tambahan yang memungkinkan model lebih fleksibel.
 
-4. **Aktivasi**
-   - Fungsi aktivasi yang digunakan adalah sigmoid, yang membatasi output neuron antara 0 dan 1.
+**Inisialisasi:**
+- Semua bobot dan bias diinisialisasi secara acak dari distribusi normal (mean=0, std=1):
+  \[
+  w_{jk} \sim \mathcal{N}(0, 1) \qquad b_j \sim \mathcal{N}(0, 1)
+  \]
+
+**Kode Python (dari `network.py`):**
+```python
+self.biases = [np.random.randn(y, 1) for y in sizes[1:]]  # Bias untuk setiap neuron (kecuali input)
+self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]  # Bobot antar layer
+```
+
+#### **Proses Feedforward (Perhitungan Output)**
+Feedforward adalah proses menghitung output jaringan dari input hingga output layer.
+
+**Langkah-langkah:**
+1. Input gambar diubah menjadi vektor kolom (784x1).
+2. Untuk setiap layer:
+   - Hitung jumlah input ke setiap neuron:
+     \[
+     z_j = \sum_k w_{jk} a_k + b_j
+     \]
+     atau dalam bentuk vektor:
+     \[
+     \mathbf{z} = \mathbf{W} \mathbf{a} + \mathbf{b}
+     \]
+   - Terapkan fungsi aktivasi sigmoid ke setiap nilai z:
+     \[
+     a_j = \sigma(z_j) = \frac{1}{1 + e^{-z_j}}
+     \]
+3. Output akhir adalah prediksi jaringan.
+
+**Kode Python (dari `network.py`):**
+```python
+def feedforward(self, a):
+    for b, w in zip(self.biases, self.weights):
+        z = np.dot(w, a) + b  # z = W*a + b
+        a = sigmoid(z)        # a = sigmoid(z)
+    return a
+
+def sigmoid(z):
+    return 1.0 / (1.0 + np.exp(-z))
+```
+
+#### **Contoh Sederhana (dengan angka kecil)**
+Misal layer sebelumnya punya 2 neuron, layer sekarang 3 neuron:
+- Bobot: matriks 3x2 (3 neuron, masing-masing terhubung ke 2 input)
+- Bias: vektor 3x1
+
+```python
+import numpy as np
+
+# Bobot dan bias acak
+W = np.array([[0.2, -0.5],
+              [1.5,  0.3],
+              [-1.2, 0.7]])
+b = np.array([[0.1], [0.2], [-0.3]])
+a_prev = np.array([[0.6], [0.9]])  # input dari layer sebelumnya
+
+# Proses feedforward satu layer
+z = np.dot(W, a_prev) + b  # z = W*a + b
+# Fungsi aktivasi sigmoid
+sigmoid = lambda x: 1 / (1 + np.exp(-x))
+a = sigmoid(z)
+print(a)
+```
+**Penjelasan kode:**
+- `np.dot(W, a_prev)`: Mengalikan bobot dengan input.
+- `+ b`: Menambahkan bias ke setiap neuron.
+- `sigmoid(z)`: Mengubah hasil ke rentang 0-1.
+- Output `a` adalah hasil aktivasi setiap neuron di layer tersebut.
+
+---
+
+### 2. **Training (Pelatihan)**
+- Data MNIST (gambar digit tulisan tangan) dimuat dan diproses menjadi vektor.
+- Proses training menggunakan algoritma backpropagation dan stochastic gradient descent:
+  - Data dibagi menjadi mini-batch.
+  - Untuk setiap mini-batch, jaringan melakukan feedforward (menghitung output dari input) dan backpropagation (menghitung error dan memperbarui bobot/bias).
+  - Proses ini diulang selama beberapa epoch (putaran) untuk meminimalkan error.
+- Setelah training selesai, model disimpan ke file `trained_network.pkl`.
+
+### 3. **Prediksi (Inference)**
+- Model yang sudah dilatih dapat memprediksi digit dari gambar baru.
+- Pada aplikasi web, pengguna menggambar digit di kanvas.
+- Gambar diproses (crop, resize, normalisasi) agar sesuai format MNIST.
+- Gambar diubah menjadi vektor dan dimasukkan ke jaringan.
+- Output jaringan adalah vektor probabilitas untuk setiap digit (0-9); digit dengan probabilitas tertinggi dipilih sebagai prediksi.
+
+### 4. **Aktivasi**
+- Fungsi aktivasi yang digunakan adalah sigmoid, yang membatasi output neuron antara 0 dan 1.
 
 ---
