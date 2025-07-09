@@ -17,7 +17,8 @@ Simple neural network implementation for MNIST digit classification, built from 
    docker run -p 8501:8501 -v ${PWD}:/app neural-network-app-dev
    ```
    This will:
-   - Automatically train the model if not exists
+   - Install all Python and system dependencies (including OpenCV)
+   - Automatically train the model if not exists (see `train.py`)
    - Start the Streamlit web interface
    - Mount your local code for live development
    - Access the app at http://localhost:8501
@@ -30,39 +31,27 @@ Simple neural network implementation for MNIST digit classification, built from 
    ```
 
 2. **Train the network:**
-
-   **Option A: Jupyter Notebook**
    ```bash
-   jupyter notebook train.ipynb
+   python train.py
    ```
-   Run all cells to train and save the model.
-
-   **Option B: Python directly**
-   ```python
-   import network
-   import mnist_loader
-
-   net = network.Network([784, 16, 16, 10]) # adjust as your NN structure
-   training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-   net.train(training_data, epochs=30, mini_batch_size=10, eta=3.0, test_data=test_data)
-   net.save("trained_network.pkl")
-   ```
+   Ini akan melatih model dan menyimpan hasilnya ke `trained_network.pkl`.
 
 3. **Test with web app:**
    ```bash
    streamlit run app.py
    ```
-   Draw digits and see predictions in your browser.
+   Buka http://localhost:8501 di browser Anda, gambar digit, dan lihat prediksi.
 
 ## Files
 
 - `network.py` - Neural network implementation
 - `mnist_loader.py` - MNIST data loader
-- `train.ipynb` - Training notebook
+- `train.py` - Script untuk melatih dan menyimpan model
+- `train.ipynb` - (Opsional) Notebook untuk eksplorasi/training manual
 - `app.py` - Streamlit web interface
 - `data/mnist.pkl.gz` - MNIST dataset
 - `Dockerfile` - Docker configuration for development
-- `entrypoint.sh` - Docker entrypoint script
+- `trained_network.pkl` - Model hasil training
 
 ## Network Architecture Example
 
