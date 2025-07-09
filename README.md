@@ -4,43 +4,48 @@ Simple neural network implementation for MNIST digit classification, built from 
 
 *Based on Michael Nielsen's "[Neural Networks and Deep Learning](http://neuralnetworksanddeeplearning.com/)".*
 
-## Quick Start
+## Quick Start (Manual Docker Workflow)
 
-### Option 1: Using Docker (Recommended)
+Jalankan langkah-langkah berikut untuk menjalankan aplikasi di dalam container Docker berbasis python:3.9:
 
-1. **Build and run with Docker:**
+1. **Tarik image python:3.9 (jika belum ada):**
    ```bash
-   # Build the development image
-   docker build -t neural-network-app-dev .
-
-   # Run with volume mount for development
-   docker run -p 8501:8501 -v ${PWD}:/app neural-network-app-dev
+   docker pull python:3.9
    ```
-   This will:
-   - Install all Python and system dependencies (including OpenCV)
-   - Automatically train the model if not exists (see `train.py`)
-   - Start the Streamlit web interface
-   - Mount your local code for live development
-   - Access the app at http://localhost:8501
 
-### Option 2: Local Installation
+2. **Cek image yang tersedia:**
+   ```bash
+   docker images
+   ```
 
-1. **Install dependencies:**
+3. **Jalankan container dengan volume mount ke direktori kerja:**
+   ```bash
+   docker run -it --network host --name app_neural_network -v ${PWD}:/app -w /app python:3.9 bash
+   ```
+
+4. **Install dependencies Python:**
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Train the network:**
+5. **Install dependency sistem untuk OpenCV:**
+   ```bash
+   apt-get update
+   apt-get install -y libgl1-mesa-glx
+   ```
+
+6. **Latih model neural network:**
    ```bash
    python train.py
    ```
-   Ini akan melatih model dan menyimpan hasilnya ke `trained_network.pkl`.
 
-3. **Test with web app:**
+7. **Jalankan aplikasi web Streamlit:**
    ```bash
    streamlit run app.py
    ```
    Buka http://localhost:8501 di browser Anda, gambar digit, dan lihat prediksi.
+
+---
 
 ## Files
 
@@ -50,7 +55,6 @@ Simple neural network implementation for MNIST digit classification, built from 
 - `train.ipynb` - (Opsional) Notebook untuk eksplorasi/training manual
 - `app.py` - Streamlit web interface
 - `data/mnist.pkl.gz` - MNIST dataset
-- `Dockerfile` - Docker configuration for development
 - `trained_network.pkl` - Model hasil training
 
 ## Network Architecture Example
