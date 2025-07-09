@@ -23,7 +23,7 @@ Aplikasi web untuk menampilkan stream CCTV dengan deteksi objek menggunakan YOLO
 
 ### Tampilan dengan 2 Objek Terdeteksi
 ![Tampilan 2 Objek](docs/images/img%203.jpg)
-*Deteksi 2 person dengan confidence level 79.09% dan 45.58%*
+*Deteksi 2 person dengan confidence level 79.09% dan 45.58%* 
 
 ## Cara Penggunaan
 
