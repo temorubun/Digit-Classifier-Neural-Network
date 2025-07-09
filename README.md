@@ -63,3 +63,31 @@ Jalankan langkah-langkah berikut untuk menjalankan aplikasi di dalam container D
 - Hidden: 16 → 16 neurons
 - Output: 10 neurons (digits 0-9)
 - Activation: Sigmoid
+
+---
+
+## Cara Kerja Neural Network di Project Ini
+
+1. **Arsitektur Jaringan**
+   - Jaringan terdiri dari 4 layer: input (784 neuron untuk 28x28 piksel), dua hidden layer (masing-masing 16 neuron), dan output (10 neuron untuk digit 0-9).
+   - Setiap neuron dihubungkan ke neuron di layer berikutnya dengan bobot (weight) dan bias yang diinisialisasi secara acak.
+
+2. **Training (Pelatihan)**
+   - Data MNIST (gambar digit tulisan tangan) dimuat dan diproses menjadi vektor.
+   - Proses training menggunakan algoritma backpropagation dan stochastic gradient descent:
+     - Data dibagi menjadi mini-batch.
+     - Untuk setiap mini-batch, jaringan melakukan feedforward (menghitung output dari input) dan backpropagation (menghitung error dan memperbarui bobot/bias).
+     - Proses ini diulang selama beberapa epoch (putaran) untuk meminimalkan error.
+   - Setelah training selesai, model disimpan ke file `trained_network.pkl`.
+
+3. **Prediksi (Inference)**
+   - Model yang sudah dilatih dapat memprediksi digit dari gambar baru.
+   - Pada aplikasi web, pengguna menggambar digit di kanvas.
+   - Gambar diproses (crop, resize, normalisasi) agar sesuai format MNIST.
+   - Gambar diubah menjadi vektor dan dimasukkan ke jaringan.
+   - Output jaringan adalah vektor probabilitas untuk setiap digit (0-9); digit dengan probabilitas tertinggi dipilih sebagai prediksi.
+
+4. **Aktivasi**
+   - Fungsi aktivasi yang digunakan adalah sigmoid, yang membatasi output neuron antara 0 dan 1.
+
+---
